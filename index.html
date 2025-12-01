@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Slide Puzzle</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --bgcol: #f8f9fa;
+            --mcol0: #3498db;
+            --mcol1: #2980b9;
+            --mcol2: #1a5276;
+            --txtcol0: #2c3e50;
+            --txtcol1: #7f8c8d;
+            --whitecol: #ffffff;
+            --darkcol: #e9ecef;
+            --wincol: #27ae60;
+            --shadowcol: rgba(0, 0, 0, 0.1);
+            --confetti-1: #3498db;
+            --confetti-2: #e74c3c;
+            --confetti-3: #f1c40f;
+            --confetti-4: #2ecc71;
+            --confetti-5: #9b59b6;
+        }
+
+        /* Dark Mode Variables */
+        .dark-mode {
+            --bgcol: #121212;
+            --mcol0: #3498db;
+            --mcol1: #2980b9;
+            --mcol2: #1a5276;
+            --txtcol0: #e0e0e0;
+            --txtcol1: #b0b0b0;
+            --whitecol: #1e1e1e;
+            --darkcol: #2d2d2d;
+            --wincol: #27ae60;
+            --shadowcol: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 5vh;
+            background-color: var(--bgcol);
+            color: var(--txtcol0);
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bgcol) 0%, var(--darkcol) 100%);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.8em;
+            color: var(--mcol0);
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 3px var(--shadowcol);
+            background: linear-gradient(135deg, var(--mcol0), var(--mcol2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            color: var(--txtcol1);
+            margin-bottom: 15px;
+        }
+
+        /* --- Theme Toggle --- */
+        #theme_toggle {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--whitecol);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px var(--shadowcol);
+            transition: all 0.3s;
+        }
+
+        #theme_toggle:hover {
+            transform: rotate(15deg);
+        }
+
+        #theme_toggle i {
+            font-size: 1.5em;
+            color: var(--txtcol0);
+        }
+
+        /* --- Developer Info --- */
+        #developer_info {
+            font-size: 0.9em;
+            color: var(--txtcol1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #developer_link {
+            color: var(--mcol0);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+
+        #developer_link:hover {
+            color: var(--mcol1);
+        }
+
+        /* --- Game Status Bar --- */
+        #game_status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            background-color: var(--whitecol);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadowcol);
+            transition: all 0.3s;
+        }
+
+        #move_count {
+            color: var(--mcol0);
+            font-weight: 800;
+            font-size: 1.3em;
+        }
+
+        #reset_game_btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
+            color: var(--whitecol);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px var(--shadowcol);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #reset_game_btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px var(--shadowcol);
+        }
+
+        #reset_game_btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* --- Puzzle Container --- */
+        #puzzle_container {
+            position: relative;
+            width: 100%;
+            height: 70vw;
+            max-height: 500px;
+            background-color: var(--darkcol);
+            border-radius: 12px;
+            border: 2px solid var(--mcol0);
+            box-shadow: 0 8px 16px var(--shadowcol);
+            overflow: hidden;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .puzzle_block {
+            position: absolute;
+            background: linear-gradient(135deg, var(--whitecol), var(--darkcol));
+            color: var(--txtcol0);
+            font-weight: 800;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid var(--darkcol);
+            box-shadow: 0 2px 4px var(--shadowcol);
+            border-radius: 6px;
+        }
+
+        .puzzle_block:hover {
+            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
+            color: var(--whitecol);
+            transform: scale(1.03);
+            z-index: 10;
+            box-shadow: 0 4px 8px var(--shadowcol);
+        }
+
+        /* --- Control Containers (Grid Size & Difficulty) --- */
+        .control-container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            background-color: var(--whitecol);
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid var(--darkcol);
+            box-shadow: 0 4px 6px var(--shadowcol);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        #size_container {
+            height: 60px;
+        }
+
+        #difficulty_container {
+            height: 60px;
+        }
+
+        .size_button, .difficulty_button {
+            flex-grow: 1;
+            background-color: inherit;
+            color: var(--txtcol1);
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+        }
+
+        .size_button:hover, .difficulty_button:hover {
+            color: var(--mcol0);
+            background-color: var(--darkcol);
+        }
+
+        .size_button.active, .difficulty_button.active {
+            color: var(--whitecol);
+            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
+        }
+
+        /* --- Status Message --- */
+        #status_message {
+            margin-top: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--wincol);
+            text-align: center;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Success Popup --- */
+        #success_popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        #success_popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #popup_content {
+            background-color: var(--whitecol);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 85%;
+            position: relative;
+            z-index: 101;
+            transform: scale(0.8);
+            transition: transform 0.4s;
+        }
+
+        #success_popup.show #popup_content {
+            transform: scale(1);
+        }
+
+        #popup_content h2 {
+            color: var(--wincol);
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        #popup_content p {
+            margin-bottom: 20px;
+            color: var(--txtcol0);
+            font-size: 1.2em;
+        }
+
+        #popup_buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .popup_button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px var(--shadowcol);
+        }
+
+        #play_again_btn {
+            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
+            color: var(--whitecol);
+        }
+
+        #play_again_btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px var(--shadowcol);
+        }
+
+        #close_popup_btn {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: var(--whitecol);
+        }
+
+        #close_popup_btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px var(--shadowcol);
+        }
+
+        /* --- Confetti --- */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--confetti-1);
+            opacity: 0;
+            animation: confetti-fall 5s linear forwards;
+        }
+
+        .confetti:nth-child(2n) {
+            background-color: var(--confetti-2);
+        }
+
+        .confetti:nth-child(3n) {
+            background-color: var(--confetti-3);
+        }
+
+        .confetti:nth-child(4n) {
+            background-color: var(--confetti-4);
+        }
+
+        .confetti:nth-child(5n) {
+            background-color: var(--confetti-5);
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* --- Instructions --- */
+        #instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--whitecol);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px var(--shadowcol);
+            width: 100%;
+            max-width: 500px;
+            transition: all 0.3s;
+        }
+
+        #instructions h3 {
+            color: var(--mcol0);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #instructions p {
+            color: var(--txtcol1);
+            line-height: 1.5;
+        }
+
+        /* --- Timer --- */
+        #timer_container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            margin-right: 20px;
+            font-size: 1.1em;
+        }
+
+        #timer {
+            font-weight: bold;
+            color: var(--mcol0);
+        }
+
+        /* --- Responsive Design --- */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2.2em;
+            }
+            
+            #game_status {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .control-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .size_button, .difficulty_button {
+                padding: 12px;
+            }
+            
+            #popup_buttons {
+                flex-direction: column;
+            }
+            
+            #timer_container {
+                margin: 0;
+            }
+        }
+
+        /* --- Animation for blocks --- */
+        @keyframes block-appear {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .puzzle_block {
+            animation: block-appear 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-puzzle-piece"></i> SLIDE PUZZLE</h1>
+            <p class="subtitle">Rearrange the tiles to solve the puzzle</p>
+            <button id="theme_toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div id="developer_info">
+                Developed by: <a href="https://www.facebook.com/jamiul2168" target="_blank" id="developer_link">Jamiul Hasan</a>
+            </div>
+        </header>
+        
+        <div id="game_status">
+            <p>Moves: <span id="move_count">0</span></p>
+            <div id="timer_container">
+                <i class="fas fa-clock"></i>
+                <span id="timer">00:00</span>
+            </div>
+            <button id="reset_game_btn">
+                <i class="fas fa-random"></i> Shuffle
+            </button>
+        </div>
+
+        <div id="puzzle_container"></div>
+
+        <div class="control-container" id="size_container">
+            <div class="size_button active" data-size="3">
+                <i class="fas fa-th"></i> 3x3
+            </div>
+            <div class="size_button" data-size="4">
+                <i class="fas fa-th-large"></i> 4x4
+            </div>
+            <div class="size_button" data-size="5">
+                <i class="fas fa-th-list"></i> 5x5
+            </div>
+        </div>
+        
+        <div class="control-container" id="difficulty_container">
+            <div class="difficulty_button active" data-level="1">
+                <i class="fas fa-smile"></i> EASY
+            </div>
+            <div class="difficulty_button" data-level="2">
+                <i class="fas fa-meh"></i> MEDIUM
+            </div>
+            <div class="difficulty_button" data-level="3">
+                <i class="fas fa-frown"></i> HARD
+            </div>
+        </div>
+        
+        <div id="status_message"></div>
+
+        <div id="instructions">
+            <h3><i class="fas fa-info-circle"></i> How to Play</h3>
+            <p>Click on tiles adjacent to the empty space to slide them. Arrange all tiles in numerical order from left to right, top to bottom to solve the puzzle.</p>
+        </div>
+    </div>
+
+    <!-- Success Popup -->
+    <div id="success_popup">
+        <div id="popup_content">
+            <h2><i class="fas fa-trophy"></i> Congratulations!</h2>
+            <p>You solved the puzzle in <span id="final_moves">0</span> moves!</p>
+            <p>Time: <span id="final_time">00:00</span></p>
+            <div id="popup_buttons">
+                <button id="play_again_btn" class="popup_button">
+                    <i class="fas fa-redo"></i> Play Again
+                </button>
+                <button id="close_popup_btn" class="popup_button">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+        <div class="confetti-container" id="confetti_container"></div>
+    </div>
+
+    <script>
+        // JAVASCRIPT LOGIC
+        
+        const GameDifficulty = [20, 50, 70]; // Shuffle iterations for 3x3 (Easy, Medium, Hard)
+        const DifficultyMultiplier = [1, 2, 4]; // Multiplier for 4x4/5x5 for better randomization
+
+        class Game {
+            difficulty;
+            gridSize; // New property: 3, 4, or 5
+            cols;
+            rows;
+            count;
+            blocksContainer; // Reference to the puzzle container
+            blocks; // Array of dynamically created block elements
+            emptyBlockCoords = [2, 2]; // Initial default, updated on init
+            indexes = [];
+            moves = 0;
+            timerInterval = null;
+            seconds = 0;
+            isPlaying = false;
+
+            constructor(gridSize = 3, difficultyLevel = 1) {
+                this.blocksContainer = document.getElementById("puzzle_container");
+                this.setGridSize(gridSize); // Set initial size, which calls init()
+                this.setDifficulty(difficultyLevel, false); // Initialize difficulty without re-randomizing
+                this.setupTimer();
+            }
+
+            setGridSize(size) {
+                this.gridSize = size;
+                this.cols = size;
+                this.rows = size;
+                this.count = this.cols * this.rows;
+                // No gridTemplateColumns needed since we use absolute positioning
+                this.init(); // Re-initialize game on size change
+            }
+
+            init() {
+                this.createBlocks(); // Generate the blocks dynamically
+                // Re-fetch blocks after creation
+                this.blocks = Array.from(this.blocksContainer.getElementsByClassName("puzzle_block"));
+                this.indexes = [];
+                this.emptyBlockCoords = [this.cols - 1, this.rows - 1]; // Empty block is always the last tile
+
+                // Calculate and apply dynamic block size CSS
+                const blockSize = 100 / this.cols;
+                
+                for (let i = 0; i < this.blocks.length; i++) {
+                    let block = this.blocks[i];
+                    let blockIdx = i;
+
+                    // Apply size and position to blocks
+                    block.style.width = `${blockSize}%`;
+                    block.style.height = `${blockSize}%`;
+                    
+                    // Set font size
+                    block.style.fontSize = `${(150 / this.cols)}px`; 
+                    
+                    let x = i % this.cols;
+                    let y = Math.floor(i / this.cols);
+
+                    this.positionBlockAtCoord(blockIdx, x, y);
+                    
+                    // Re-bind click events
+                    block.removeEventListener('click', block.clickListener); 
+                    block.clickListener = this.onClickOnBlock.bind(this, blockIdx); 
+                    block.addEventListener('click', block.clickListener);
+
+                    this.indexes.push(blockIdx);
+                }
+
+                this.indexes.push(this.count - 1); 
+
+                this.resetMoves();
+                this.randomize(this.difficulty * DifficultyMultiplier[this.gridSize - 3]);
+                
+                for (let i = 0; i < this.blocks.length; i++) {
+                    this.blocks[i].style.pointerEvents = 'auto';
+                }
+                
+                // Start the timer
+                this.startTimer();
+            }
+            
+            // Function to create blocks dynamically
+            createBlocks() {
+                this.blocksContainer.innerHTML = ''; 
+                for (let i = 1; i < this.count; i++) {
+                    const block = document.createElement('div');
+                    block.classList.add('puzzle_block');
+                    block.textContent = i;
+                    this.blocksContainer.appendChild(block);
+                }
+            }
+
+            resetMoves() {
+                this.moves = 0;
+                document.getElementById('move_count').textContent = this.moves;
+                document.getElementById('status_message').textContent = "";
+            }
+
+            randomize(iterationCount) {
+                for (let i = 0; i < iterationCount; i++) {
+                    let randomBlockIdx = Math.floor(Math.random() * (this.count - 1));
+                    let moved = this.moveBlock(randomBlockIdx, false); 
+                    if (!moved) i--; 
+                }
+            }
+
+            moveBlock(blockIdx, countMove = true) {
+                let block = this.blocks[blockIdx];
+                let blockCoords = this.canMoveBlock(block);
+
+                if (blockCoords != null) {
+                    let blockPosInIndexes = blockCoords[0] + blockCoords[1] * this.cols;
+                    let oldEmptyIdx = this.emptyBlockCoords[0] + this.emptyBlockCoords[1] * this.cols;
+
+                    this.positionBlockAtCoord(blockIdx, this.emptyBlockCoords[0], this.emptyBlockCoords[1]);
+                    
+                    this.indexes[oldEmptyIdx] = this.indexes[blockPosInIndexes];
+                    this.indexes[blockPosInIndexes] = this.count - 1; 
+
+                    this.emptyBlockCoords[0] = blockCoords[0];
+                    this.emptyBlockCoords[1] = blockCoords[1];
+
+                    if (countMove) {
+                        this.moves++;
+                        document.getElementById('move_count').textContent = this.moves;
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            canMoveBlock(block) {
+                const blockLeft = parseFloat(block.style.left);
+                const blockTop = parseFloat(block.style.top);
+                const blockSizePercent = 100 / this.cols;
+
+                let blockCoords = [
+                    Math.round(blockLeft / blockSizePercent * 100 / 100),
+                    Math.round(blockTop / blockSizePercent * 100 / 100)
+                ];
+
+                let diff = [
+                    Math.abs(blockCoords[0] - this.emptyBlockCoords[0]),
+                    Math.abs(blockCoords[1] - this.emptyBlockCoords[1])
+                ];
+
+                let canMove = (diff[0] == 1 && diff[1] == 0) || (diff[0] == 0 && diff[1] == 1);
+
+                if (canMove) return blockCoords;
+                else return null;
+            }
+
+            positionBlockAtCoord(blockIdx, x, y) {
+                let block = this.blocks[blockIdx];
+                const blockSize = 100 / this.cols;
+                block.style.left = `${x * blockSize}%`;
+                block.style.top = `${y * blockSize}%`;
+            }
+
+            onClickOnBlock(blockIdx) {
+                if (!this.isPlaying) {
+                    this.startTimer();
+                }
+                
+                if (this.moveBlock(blockIdx)) {
+                    if (this.checkPuzzleSolved()) {
+                        document.getElementById('final_moves').textContent = this.moves;
+                        document.getElementById('final_time').textContent = this.formatTime(this.seconds);
+                        document.getElementById('success_popup').classList.add('show');
+                        createConfetti();
+                        this.stopTimer();
+                        
+                        for (let i = 0; i < this.blocks.length; i++) {
+                            this.blocks[i].style.pointerEvents = 'none';
+                        }
+                    }
+                }
+            }
+
+            checkPuzzleSolved() {
+                for (let i = 0; i < this.indexes.length; i++) {
+                    if (this.indexes[i] != i) return false;
+                }
+                return true;
+            }
+
+            setDifficulty(difficultyLevel, shouldRandomize = true) {
+                this.difficulty = GameDifficulty[difficultyLevel - 1];
+
+                this.resetMoves();
+                this.resetTimer();
+
+                for (let i = 0; i < this.blocks.length; i++) {
+                    this.blocks[i].style.pointerEvents = 'auto';
+                }
+                if (shouldRandomize) {
+                    const multiplier = DifficultyMultiplier[this.gridSize - 3];
+                    this.randomize(this.difficulty * multiplier); 
+                }
+            }
+            
+            // Timer functions
+            setupTimer() {
+                this.seconds = 0;
+                this.isPlaying = false;
+                this.updateTimerDisplay();
+            }
+            
+            startTimer() {
+                if (!this.isPlaying) {
+                    this.isPlaying = true;
+                    this.timerInterval = setInterval(() => {
+                        this.seconds++;
+                        this.updateTimerDisplay();
+                    }, 1000);
+                }
+            }
+            
+            stopTimer() {
+                this.isPlaying = false;
+                clearInterval(this.timerInterval);
+            }
+            
+            resetTimer() {
+                this.stopTimer();
+                this.seconds = 0;
+                this.updateTimerDisplay();
+            }
+            
+            updateTimerDisplay() {
+                document.getElementById('timer').textContent = this.formatTime(this.seconds);
+            }
+            
+            formatTime(totalSeconds) {
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Confetti function
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti_container');
+            confettiContainer.innerHTML = '';
+            
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                
+                // Random position and animation delay
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDelay = Math.random() * 5 + 's';
+                
+                // Random size
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = size + 'px';
+                confetti.style.height = size + 'px';
+                
+                // Random shape
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                }
+                
+                confettiContainer.appendChild(confetti);
+            }
+        }
+
+        // Theme toggle function
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeIcon = document.querySelector('#theme_toggle i');
+            
+            if (document.body.classList.contains('dark-mode')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Check for saved theme preference
+        function checkThemePreference() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                const themeIcon = document.querySelector('#theme_toggle i');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        }
+
+        // --- Global Game Setup ---
+        var game = new Game(3, 1); 
+
+        // --- Event Listeners ---
+
+        // Handle Grid Size Buttons
+        var size_buttons = Array.from(document.getElementsByClassName("size_button"));
+        size_buttons.forEach((elem, idx) => {
+            elem.addEventListener('click', (e) => {
+                const currentActive = document.querySelector('.size_button.active');
+                if (currentActive) {
+                    currentActive.classList.remove("active");
+                }
+                elem.classList.add("active");
+                
+                const newSize = parseInt(elem.getAttribute('data-size'));
+                game.setGridSize(newSize); 
+                
+                const currentDiffActive = document.querySelector('.difficulty_button.active');
+                if (currentDiffActive) {
+                    currentDiffActive.classList.remove("active");
+                }
+                document.querySelector('.difficulty_button[data-level="1"]').classList.add("active");
+                game.setDifficulty(1, false); 
+            });
+        });
+
+        // Handle Difficulty Buttons
+        var difficulty_buttons = Array.from(document.getElementsByClassName("difficulty_button"));
+        difficulty_buttons.forEach((elem, idx) => {
+            elem.addEventListener('click', (e) => {
+                const currentActive = document.querySelector('.difficulty_button.active');
+                if (currentActive) {
+                    currentActive.classList.remove("active");
+                }
+                elem.classList.add("active");
+                
+                game.setDifficulty(idx + 1);
+            });
+        });
+
+        // Handling the Shuffle/Reset Button
+        document.getElementById('reset_game_btn').addEventListener('click', () => {
+            const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
+            game.setDifficulty(currentDifficultyIndex + 1);
+        });
+
+        // Success Popup Buttons
+        document.getElementById('play_again_btn').addEventListener('click', () => {
+            document.getElementById('success_popup').classList.remove('show');
+            const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
+            game.setDifficulty(currentDifficultyIndex + 1);
+        });
+
+        document.getElementById('close_popup_btn').addEventListener('click', () => {
+            document.getElementById('success_popup').classList.remove('show');
+            // Start a new game when popup is closed
+            const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
+            game.setDifficulty(currentDifficultyIndex + 1);
+        });
+
+        // Theme toggle
+        document.getElementById('theme_toggle').addEventListener('click', toggleTheme);
+
+        // Check theme preference on load
+        checkThemePreference();
+
+        // Initial setup to display the puzzle
+        document.getElementById('reset_game_btn').click();
+    </script>
+</body>
+</html>
