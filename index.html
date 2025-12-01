@@ -117,6 +117,33 @@
             color: var(--txtcol0);
         }
 
+        /* --- Settings Button --- */
+        #settings_toggle {
+            position: absolute;
+            top: 0;
+            right: 60px;
+            background: var(--whitecol);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px var(--shadowcol);
+            transition: all 0.3s;
+        }
+
+        #settings_toggle:hover {
+            transform: rotate(15deg);
+        }
+
+        #settings_toggle i {
+            font-size: 1.5em;
+            color: var(--txtcol0);
+        }
+
         /* --- Developer Info --- */
         #developer_info {
             font-size: 0.9em;
@@ -221,50 +248,97 @@
             box-shadow: 0 4px 8px var(--shadowcol);
         }
 
-        /* --- Control Containers (Grid Size & Difficulty) --- */
-        .control-container {
-            display: flex;
-            flex-direction: row;
-            width: 100%;
+        /* --- Settings Panel --- */
+        #settings_panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 350px;
+            height: 100%;
             background-color: var(--whitecol);
-            border-radius: 10px;
-            margin-top: 15px;
-            border: 1px solid var(--darkcol);
-            box-shadow: 0 4px 6px var(--shadowcol);
-            overflow: hidden;
-            transition: all 0.3s;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 200;
+            transition: right 0.4s ease;
+            padding: 30px 25px;
+            overflow-y: auto;
         }
 
-        #size_container {
-            height: 60px;
+        #settings_panel.show {
+            right: 0;
         }
 
-        #difficulty_container {
-            height: 60px;
+        #settings_panel h2 {
+            color: var(--mcol0);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8em;
         }
 
-        .size_button, .difficulty_button {
-            flex-grow: 1;
-            background-color: inherit;
-            color: var(--txtcol1);
-            text-align: center;
-            font-weight: bold;
+        .settings-section {
+            margin-bottom: 30px;
+        }
+
+        .settings-section h3 {
+            color: var(--txtcol0);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid var(--darkcol);
+            padding-bottom: 8px;
+        }
+
+        .settings-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 12px 15px;
+            background-color: var(--darkcol);
+            border-radius: 8px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .settings-option:hover {
+            background-color: var(--mcol0);
+            color: var(--whitecol);
+        }
+
+        .settings-option.active {
+            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
+            color: var(--whitecol);
+        }
+
+        .settings-option i {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .settings-option span {
+            font-weight: 600;
+        }
+
+        #apply_settings {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--wincol), #219653);
+            color: var(--whitecol);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
             transition: all 0.3s;
+            margin-top: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1em;
+            gap: 10px;
         }
 
-        .size_button:hover, .difficulty_button:hover {
-            color: var(--mcol0);
-            background-color: var(--darkcol);
-        }
-
-        .size_button.active, .difficulty_button.active {
-            color: var(--whitecol);
-            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
+        #apply_settings:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px var(--shadowcol);
         }
 
         /* --- Status Message --- */
@@ -467,21 +541,30 @@
                 padding: 15px;
             }
             
-            .control-container {
-                flex-direction: column;
-                height: auto;
-            }
-            
-            .size_button, .difficulty_button {
-                padding: 12px;
-            }
-            
             #popup_buttons {
                 flex-direction: column;
             }
             
             #timer_container {
                 margin: 0;
+            }
+            
+            #settings_panel {
+                width: 85%;
+                right: -85%;
+            }
+            
+            #theme_toggle, #settings_toggle {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin: 10px;
+            }
+            
+            header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
         }
 
@@ -507,6 +590,9 @@
         <header>
             <h1><i class="fas fa-puzzle-piece"></i> SLIDE PUZZLE</h1>
             <p class="subtitle">Rearrange the tiles to solve the puzzle</p>
+            <button id="settings_toggle">
+                <i class="fas fa-cog"></i>
+            </button>
             <button id="theme_toggle">
                 <i class="fas fa-moon"></i>
             </button>
@@ -527,40 +613,55 @@
         </div>
 
         <div id="puzzle_container"></div>
-
-        <div class="control-container" id="size_container">
-            <div class="size_button active" data-size="3">
-                <i class="fas fa-th"></i> 3x3
-            </div>
-            <div class="size_button" data-size="4">
-                <i class="fas fa-th-large"></i> 4x4
-            </div>
-            <div class="size_button" data-size="5">
-                <i class="fas fa-th-list"></i> 5x5
-            </div>
-        </div>
-        
-        <div class="control-container" id="difficulty_container">
-            <div class="difficulty_button active" data-level="1">
-                <i class="fas fa-smile"></i> EASY
-            </div>
-            <div class="difficulty_button" data-level="2">
-                <i class="fas fa-meh"></i> MEDIUM
-            </div>
-            <div class="difficulty_button" data-level="3">
-                <i class="fas fa-frown"></i> HARD
-            </div>
-        </div>
         
         <div id="status_message"></div>
 
         <div id="instructions">
             <h3><i class="fas fa-info-circle"></i> How to Play</h3>
-            <p>Click on tiles adjacent to the empty space to slide them. Arrange all tiles in numerical order from left to right, top to bottom to solve the puzzle.</p>
+            <p>Click on tiles adjacent to the empty space to slide them. Arrange all tiles in numerical order from left to right, top to bottom to solve the puzzle. Click the <i class="fas fa-cog"></i> button to change grid size and difficulty.</p>
         </div>
     </div>
 
-    <!-- Success Popup -->
+    <div id="settings_panel">
+        <h2><i class="fas fa-cog"></i> Game Settings</h2>
+        
+        <div class="settings-section">
+            <h3>Grid Size</h3>
+            <div class="settings-option active" data-type="size" data-value="3">
+                <i class="fas fa-th"></i>
+                <span>3x3 Grid</span>
+            </div>
+            <div class="settings-option" data-type="size" data-value="4">
+                <i class="fas fa-th-large"></i>
+                <span>4x4 Grid</span>
+            </div>
+            <div class="settings-option" data-type="size" data-value="5">
+                <i class="fas fa-th-list"></i>
+                <span>5x5 Grid</span>
+            </div>
+        </div>
+        
+        <div class="settings-section">
+            <h3>Difficulty Level</h3>
+            <div class="settings-option active" data-type="difficulty" data-value="1">
+                <i class="fas fa-smile"></i>
+                <span>Easy (Less Shuffle)</span>
+            </div>
+            <div class="settings-option" data-type="difficulty" data-value="2">
+                <i class="fas fa-meh"></i>
+                <span>Medium (Moderate Shuffle)</span>
+            </div>
+            <div class="settings-option" data-type="difficulty" data-value="3">
+                <i class="fas fa-frown"></i>
+                <span>Hard (More Shuffle)</span>
+            </div>
+        </div>
+        
+        <button id="apply_settings">
+            <i class="fas fa-play-circle"></i> Start Game
+        </button>
+    </div>
+
     <div id="success_popup">
         <div id="popup_content">
             <h2><i class="fas fa-trophy"></i> Congratulations!</h2>
@@ -611,7 +712,6 @@
                 this.cols = size;
                 this.rows = size;
                 this.count = this.cols * this.rows;
-                // No gridTemplateColumns needed since we use absolute positioning
                 this.init(); // Re-initialize game on size change
             }
 
@@ -652,8 +752,12 @@
                 this.indexes.push(this.count - 1); 
 
                 this.resetMoves();
-                this.randomize(this.difficulty * DifficultyMultiplier[this.gridSize - 3]);
                 
+                // Use current difficulty setting for randomization
+                const currentDifficultyIndex = GameDifficulty.indexOf(this.difficulty);
+                const multiplier = DifficultyMultiplier[this.gridSize - 3];
+                this.randomize(GameDifficulty[currentDifficultyIndex] * multiplier);
+
                 for (let i = 0; i < this.blocks.length; i++) {
                     this.blocks[i].style.pointerEvents = 'auto';
                 }
@@ -864,6 +968,34 @@
             }
         }
 
+        // Settings panel functions
+        function toggleSettings() {
+            document.getElementById('settings_panel').classList.toggle('show');
+        }
+
+        function applySettings() {
+            const selectedSize = document.querySelector('.settings-option.active[data-type="size"]').getAttribute('data-value');
+            const selectedDifficulty = document.querySelector('.settings-option.active[data-type="difficulty"]').getAttribute('data-value');
+            
+            // Apply the new settings to the game
+            game.setGridSize(parseInt(selectedSize));
+            game.setDifficulty(parseInt(selectedDifficulty));
+            
+            // Close the settings panel
+            toggleSettings();
+        }
+
+        // Settings option selection
+        document.querySelectorAll('.settings-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const type = this.getAttribute('data-type');
+                document.querySelectorAll(`.settings-option[data-type="${type}"]`).forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
         // Check for saved theme preference
         function checkThemePreference() {
             const savedTheme = localStorage.getItem('theme');
@@ -880,64 +1012,38 @@
 
         // --- Event Listeners ---
 
-        // Handle Grid Size Buttons
-        var size_buttons = Array.from(document.getElementsByClassName("size_button"));
-        size_buttons.forEach((elem, idx) => {
-            elem.addEventListener('click', (e) => {
-                const currentActive = document.querySelector('.size_button.active');
-                if (currentActive) {
-                    currentActive.classList.remove("active");
-                }
-                elem.classList.add("active");
-                
-                const newSize = parseInt(elem.getAttribute('data-size'));
-                game.setGridSize(newSize); 
-                
-                const currentDiffActive = document.querySelector('.difficulty_button.active');
-                if (currentDiffActive) {
-                    currentDiffActive.classList.remove("active");
-                }
-                document.querySelector('.difficulty_button[data-level="1"]').classList.add("active");
-                game.setDifficulty(1, false); 
-            });
-        });
-
-        // Handle Difficulty Buttons
-        var difficulty_buttons = Array.from(document.getElementsByClassName("difficulty_button"));
-        difficulty_buttons.forEach((elem, idx) => {
-            elem.addEventListener('click', (e) => {
-                const currentActive = document.querySelector('.difficulty_button.active');
-                if (currentActive) {
-                    currentActive.classList.remove("active");
-                }
-                elem.classList.add("active");
-                
-                game.setDifficulty(idx + 1);
-            });
-        });
-
         // Handling the Shuffle/Reset Button
         document.getElementById('reset_game_btn').addEventListener('click', () => {
             const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
-            game.setDifficulty(currentDifficultyIndex + 1);
+            // Get the difficulty level (1, 2, or 3) from the current index
+            const currentLevel = currentDifficultyIndex + 1; 
+            game.setDifficulty(currentLevel);
         });
 
         // Success Popup Buttons
         document.getElementById('play_again_btn').addEventListener('click', () => {
             document.getElementById('success_popup').classList.remove('show');
             const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
-            game.setDifficulty(currentDifficultyIndex + 1);
+            const currentLevel = currentDifficultyIndex + 1; 
+            game.setDifficulty(currentLevel);
         });
 
         document.getElementById('close_popup_btn').addEventListener('click', () => {
             document.getElementById('success_popup').classList.remove('show');
             // Start a new game when popup is closed
             const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
-            game.setDifficulty(currentDifficultyIndex + 1);
+            const currentLevel = currentDifficultyIndex + 1; 
+            game.setDifficulty(currentLevel);
         });
 
         // Theme toggle
         document.getElementById('theme_toggle').addEventListener('click', toggleTheme);
+
+        // Settings toggle
+        document.getElementById('settings_toggle').addEventListener('click', toggleSettings);
+
+        // Apply settings
+        document.getElementById('apply_settings').addEventListener('click', applySettings);
 
         // Check theme preference on load
         checkThemePreference();
