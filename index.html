@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Slide Puzzle</title>
+    <title>Professional Slide Puzzle with AI Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* CSS STYLES */
@@ -529,7 +529,126 @@
             color: var(--mcol0);
         }
 
-        /* --- Responsive Design --- */
+        /* --- AI Assistant Styles --- */
+        #ai_assistant_container {
+            margin-top: 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #ai_hint_btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: var(--whitecol);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px var(--shadowcol);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        #ai_hint_btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px var(--shadowcol);
+        }
+
+        #ai_hint_btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #ai_hint_counter {
+            font-size: 0.9em;
+            color: var(--txtcol1);
+            text-align: center;
+            margin-top: 0;
+            min-height: 20px;
+            transition: all 0.3s;
+        }
+
+        /* AI Indicator Styling - Enhanced */
+        .ai-hint-indicator {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            width: calc(100% + 6px);
+            height: calc(100% + 6px);
+            border: 4px solid #9b59b6;
+            border-radius: 8px;
+            z-index: 5;
+            pointer-events: none;
+            animation: ai-pulse 1s infinite alternate;
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.7), inset 0 0 20px rgba(155, 89, 182, 0.3);
+        }
+
+        /* AI Glow Effect */
+        .ai-glow-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            background: radial-gradient(circle at center, rgba(155, 89, 182, 0.2) 0%, transparent 70%);
+            z-index: 4;
+            pointer-events: none;
+            animation: ai-glow 1.5s infinite alternate;
+        }
+
+        @keyframes ai-pulse {
+            0% {
+                border-color: rgba(155, 89, 182, 0.7);
+                box-shadow: 0 0 15px rgba(155, 89, 182, 0.5), inset 0 0 15px rgba(155, 89, 182, 0.2);
+                transform: scale(1);
+            }
+            100% {
+                border-color: rgba(155, 89, 182, 1);
+                box-shadow: 0 0 25px rgba(155, 89, 182, 0.9), inset 0 0 25px rgba(155, 89, 182, 0.4);
+                transform: scale(1.02);
+            }
+        }
+
+        @keyframes ai-glow {
+            0% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 0.8;
+            }
+        }
+
+        /* AI Arrow Indicator */
+        .ai-arrow-indicator {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #9b59b6;
+            font-size: 24px;
+            z-index: 6;
+            pointer-events: none;
+            animation: arrow-bounce 1s infinite alternate;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes arrow-bounce {
+            0% {
+                transform: translateX(-50%) translateY(0);
+            }
+            100% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 600px) {
             header h1 {
                 font-size: 2.2em;
@@ -614,11 +733,19 @@
 
         <div id="puzzle_container"></div>
         
+        <!-- AI Assistant Section - Minimal -->
+        <div id="ai_assistant_container">
+            <button id="ai_hint_btn">
+                <i class="fas fa-robot"></i> Show Next Move
+            </button>
+            <p id="ai_hint_counter"><span id="hint_count">3</span> hints remaining</p>
+        </div>
+        
         <div id="status_message"></div>
 
         <div id="instructions">
             <h3><i class="fas fa-info-circle"></i> How to Play</h3>
-            <p>Click on tiles adjacent to the empty space to slide them. Arrange all tiles in numerical order from left to right, top to bottom to solve the puzzle. Click the <i class="fas fa-cog"></i> button to change grid size and difficulty.</p>
+            <p>Click on tiles adjacent to the empty space to slide them. Arrange all tiles in numerical order from left to right, top to bottom to solve the puzzle. Click the <i class="fas fa-cog"></i> button to change grid size and difficulty. Use "Show Next Move" button (max 3 per game) to see which tile to click.</p>
         </div>
     </div>
 
@@ -850,6 +977,11 @@
                 }
                 
                 if (this.moveBlock(blockIdx)) {
+                    // Hide AI hint if active
+                    if (aiAssistant) {
+                        aiAssistant.hideHint();
+                    }
+                    
                     if (this.checkPuzzleSolved()) {
                         document.getElementById('final_moves').textContent = this.moves;
                         document.getElementById('final_time').textContent = this.formatTime(this.seconds);
@@ -925,6 +1057,207 @@
             }
         }
 
+        // AI Assistant Class - Visual Only
+        class AIAssistant {
+            constructor(gameInstance) {
+                this.game = gameInstance;
+                this.hintsRemaining = 3;
+                this.isActive = false;
+                this.hintBlock = null;
+                this.setupAI();
+                this.updateHintCounter();
+            }
+            
+            setupAI() {
+                this.aiButton = document.getElementById('ai_hint_btn');
+                this.hintCounter = document.getElementById('hint_count');
+                
+                // AI Button Event
+                this.aiButton.addEventListener('click', () => this.getHint());
+            }
+            
+            getHint() {
+                if (this.hintsRemaining <= 0) {
+                    this.aiButton.disabled = true;
+                    return;
+                }
+                
+                const bestMove = this.findBestMove();
+                if (!bestMove) {
+                    return;
+                }
+                
+                // Use one hint
+                this.hintsRemaining--;
+                this.updateHintCounter();
+                
+                // Disable button if no hints left
+                if (this.hintsRemaining <= 0) {
+                    this.aiButton.disabled = true;
+                    this.aiButton.innerHTML = '<i class="fas fa-robot"></i> No Hints Left';
+                }
+                
+                // Show the hint visually
+                this.showVisualHint(bestMove);
+            }
+            
+            findBestMove() {
+                const movableBlocks = [];
+                
+                // Find all blocks that can move
+                for (let i = 0; i < this.game.blocks.length; i++) {
+                    const block = this.game.blocks[i];
+                    const blockLeft = parseFloat(block.style.left);
+                    const blockTop = parseFloat(block.style.top);
+                    const blockSizePercent = 100 / this.game.cols;
+                    
+                    let blockCoords = [
+                        Math.round(blockLeft / blockSizePercent * 100 / 100),
+                        Math.round(blockTop / blockSizePercent * 100 / 100)
+                    ];
+                    
+                    let diff = [
+                        Math.abs(blockCoords[0] - this.game.emptyBlockCoords[0]),
+                        Math.abs(blockCoords[1] - this.game.emptyBlockCoords[1])
+                    ];
+                    
+                    let canMove = (diff[0] == 1 && diff[1] == 0) || (diff[0] == 0 && diff[1] == 1);
+                    
+                    if (canMove) {
+                        movableBlocks.push({
+                            index: i,
+                            block: block,
+                            coords: blockCoords,
+                            number: parseInt(block.textContent)
+                        });
+                    }
+                }
+                
+                if (movableBlocks.length === 0) return null;
+                
+                // Evaluate each possible move
+                const evaluatedMoves = movableBlocks.map(move => {
+                    return {
+                        ...move,
+                        score: this.evaluateMove(move)
+                    };
+                });
+                
+                // Sort by score (higher is better)
+                evaluatedMoves.sort((a, b) => b.score - a.score);
+                
+                return evaluatedMoves[0]; // Best move
+            }
+            
+            evaluateMove(move) {
+                let score = 0;
+                const targetX = (move.number - 1) % this.game.cols;
+                const targetY = Math.floor((move.number - 1) / this.game.cols);
+                
+                // Current distance from correct position
+                const currentDistance = Math.abs(move.coords[0] - targetX) + Math.abs(move.coords[1] - targetY);
+                
+                // Distance after moving to empty spot
+                const newDistance = Math.abs(this.game.emptyBlockCoords[0] - targetX) + 
+                                   Math.abs(this.game.emptyBlockCoords[1] - targetY);
+                
+                // Improvement score (negative means improvement)
+                const improvement = newDistance - currentDistance;
+                
+                // Higher score for improvement
+                score -= improvement * 10;
+                
+                // Bonus for moving tiles that are closer to their correct position
+                if (improvement < 0) {
+                    score += 5;
+                }
+                
+                // Bonus for moving lower numbers first (helps with ordering)
+                if (move.number <= this.game.cols) {
+                    score += 3;
+                }
+                
+                // Bonus for moving corner pieces
+                if ((move.coords[0] === 0 || move.coords[0] === this.game.cols - 1) &&
+                    (move.coords[1] === 0 || move.coords[1] === this.game.rows - 1)) {
+                    score += 2;
+                }
+                
+                return score;
+            }
+            
+            showVisualHint(bestMove) {
+                this.hideHint(); // Remove any existing hint
+                
+                // Create hint indicator with enhanced visual effects
+                this.hintBlock = bestMove.block;
+                
+                // Add glowing border
+                const borderIndicator = document.createElement('div');
+                borderIndicator.className = 'ai-hint-indicator';
+                this.hintBlock.appendChild(borderIndicator);
+                
+                // Add inner glow effect
+                const glowEffect = document.createElement('div');
+                glowEffect.className = 'ai-glow-effect';
+                this.hintBlock.appendChild(glowEffect);
+                
+                // Add arrow indicator above the tile
+                const arrowIndicator = document.createElement('div');
+                arrowIndicator.className = 'ai-arrow-indicator';
+                arrowIndicator.innerHTML = '<i class="fas fa-hand-point-down"></i>';
+                this.hintBlock.appendChild(arrowIndicator);
+                
+                // Make the tile number more visible
+                this.hintBlock.style.zIndex = '20';
+                this.hintBlock.style.fontWeight = '900';
+                this.hintBlock.style.color = '#9b59b6';
+                this.hintBlock.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.8)';
+                
+                // Auto-remove hint after 5 seconds
+                setTimeout(() => {
+                    this.hideHint();
+                }, 5000);
+            }
+            
+            hideHint() {
+                if (this.hintBlock) {
+                    // Remove all AI indicators
+                    const indicators = this.hintBlock.querySelectorAll('.ai-hint-indicator, .ai-glow-effect, .ai-arrow-indicator');
+                    indicators.forEach(indicator => {
+                        indicator.remove();
+                    });
+                    
+                    // Reset tile styling
+                    this.hintBlock.style.zIndex = '';
+                    this.hintBlock.style.fontWeight = '';
+                    this.hintBlock.style.color = '';
+                    this.hintBlock.style.textShadow = '';
+                    
+                    this.hintBlock = null;
+                }
+            }
+            
+            updateHintCounter() {
+                this.hintCounter.textContent = this.hintsRemaining;
+                
+                if (this.hintsRemaining === 0) {
+                    document.getElementById('ai_hint_counter').textContent = 'No hints remaining';
+                } else {
+                    document.getElementById('ai_hint_counter').innerHTML = `<span id="hint_count">${this.hintsRemaining}</span> hints remaining`;
+                }
+            }
+            
+            reset() {
+                this.hintsRemaining = 3;
+                this.isActive = false;
+                this.hideHint();
+                this.aiButton.disabled = false;
+                this.aiButton.innerHTML = '<i class="fas fa-robot"></i> Show Next Move';
+                this.updateHintCounter();
+            }
+        }
+
         // Confetti function
         function createConfetti() {
             const confettiContainer = document.getElementById('confetti_container');
@@ -981,6 +1314,11 @@
             game.setGridSize(parseInt(selectedSize));
             game.setDifficulty(parseInt(selectedDifficulty));
             
+            // Reset AI assistant
+            if (aiAssistant) {
+                aiAssistant.reset();
+            }
+            
             // Close the settings panel
             toggleSettings();
         }
@@ -1010,6 +1348,9 @@
         // --- Global Game Setup ---
         var game = new Game(3, 1); 
 
+        // --- AI Assistant Setup ---
+        var aiAssistant = new AIAssistant(game);
+
         // --- Event Listeners ---
 
         // Handling the Shuffle/Reset Button
@@ -1018,6 +1359,11 @@
             // Get the difficulty level (1, 2, or 3) from the current index
             const currentLevel = currentDifficultyIndex + 1; 
             game.setDifficulty(currentLevel);
+            
+            // Reset AI assistant
+            if (aiAssistant) {
+                aiAssistant.reset();
+            }
         });
 
         // Success Popup Buttons
@@ -1026,6 +1372,11 @@
             const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
             const currentLevel = currentDifficultyIndex + 1; 
             game.setDifficulty(currentLevel);
+            
+            // Reset AI assistant
+            if (aiAssistant) {
+                aiAssistant.reset();
+            }
         });
 
         document.getElementById('close_popup_btn').addEventListener('click', () => {
@@ -1034,6 +1385,11 @@
             const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
             const currentLevel = currentDifficultyIndex + 1; 
             game.setDifficulty(currentLevel);
+            
+            // Reset AI assistant
+            if (aiAssistant) {
+                aiAssistant.reset();
+            }
         });
 
         // Theme toggle
