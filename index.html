@@ -1,1684 +1,500 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Slide Puzzle with AI Assistant</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pro Slide Puzzle</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* CSS STYLES */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        /* --- CSS VARIABLES --- */
         :root {
-            --bgcol: #f8f9fa;
-            --mcol0: #3498db;
-            --mcol1: #2980b9;
-            --mcol2: #1a5276;
-            --txtcol0: #2c3e50;
-            --txtcol1: #7f8c8d;
-            --whitecol: #ffffff;
-            --darkcol: #e9ecef;
-            --wincol: #27ae60;
-            --shadowcol: rgba(0, 0, 0, 0.1);
-            --confetti-1: #3498db;
-            --confetti-2: #e74c3c;
-            --confetti-3: #f1c40f;
-            --confetti-4: #2ecc71;
-            --confetti-5: #9b59b6;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --accent: #8b5cf6; 
+            --bg-body: #f1f5f9;
+            --surface: #ffffff;
+            --surface-2: #e2e8f0;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #cbd5e1;
+            --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
         }
 
-        /* Dark Mode Variables */
-        .dark-mode {
-            --bgcol: #121212;
-            --mcol0: #3498db;
-            --mcol1: #2980b9;
-            --mcol2: #1a5276;
-            --txtcol0: #e0e0e0;
-            --txtcol1: #b0b0b0;
-            --whitecol: #1e1e1e;
-            --darkcol: #2d2d2d;
-            --wincol: #27ae60;
-            --shadowcol: rgba(0, 0, 0, 0.3);
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --surface: #1e293b;
+            --surface-2: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: rgba(255,255,255,0.1);
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s, border-color 0.3s; }
 
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 5vh;
-            background-color: var(--bgcol);
-            color: var(--txtcol0);
+            background-color: var(--bg-body);
+            color: var(--text-main);
             min-height: 100vh;
-            background: linear-gradient(135deg, var(--bgcol) 0%, var(--darkcol) 100%);
-            transition: all 0.3s ease;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 600px;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-            width: 100%;
+            justify-content: center;
+            overflow-x: hidden;
             position: relative;
         }
 
-        header h1 {
-            font-size: 2.8em;
-            color: var(--mcol0);
-            margin-bottom: 8px;
-            text-shadow: 1px 1px 3px var(--shadowcol);
-            background: linear-gradient(135deg, var(--mcol0), var(--mcol2));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
-        }
-
-        .subtitle {
-            font-size: 1.1em;
-            color: var(--txtcol1);
-            margin-bottom: 15px;
-        }
-
-        /* --- Theme Toggle --- */
-        #theme_toggle {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background: var(--whitecol);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px var(--shadowcol);
-            transition: all 0.3s;
-        }
-
-        #theme_toggle:hover {
-            transform: rotate(15deg);
-        }
-
-        #theme_toggle i {
-            font-size: 1.5em;
-            color: var(--txtcol0);
-        }
-
-        /* --- Settings Button --- */
-        #settings_toggle {
-            position: absolute;
-            top: 0;
-            right: 60px;
-            background: var(--whitecol);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 6px var(--shadowcol);
-            transition: all 0.3s;
-        }
-
-        #settings_toggle:hover {
-            transform: rotate(15deg);
-        }
-
-        #settings_toggle i {
-            font-size: 1.5em;
-            color: var(--txtcol0);
-        }
-
-        /* --- Developer Info --- */
-        #developer_info {
-            font-size: 0.9em;
-            color: var(--txtcol1);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #developer_link {
-            color: var(--mcol0);
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.2s;
-        }
-
-        #developer_link:hover {
-            color: var(--mcol1);
-        }
-
-        /* --- Game Status Bar --- */
-        #game_status {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 15px;
-            padding: 12px 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-            background-color: var(--whitecol);
-            border-radius: 10px;
-            box-shadow: 0 4px 6px var(--shadowcol);
-            transition: all 0.3s;
-        }
-
-        #move_count {
-            color: var(--mcol0);
-            font-weight: 800;
-            font-size: 1.3em;
-        }
-
-        #reset_game_btn {
-            padding: 10px 20px;
-            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
-            color: var(--whitecol);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px var(--shadowcol);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        #reset_game_btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px var(--shadowcol);
-        }
-
-        #reset_game_btn:active {
-            transform: translateY(-1px);
-        }
-
-        /* --- Puzzle Container --- */
-        #puzzle_container {
-            position: relative;
-            width: 100%;
-            height: 70vw;
-            max-height: 500px;
-            background-color: var(--darkcol);
-            border-radius: 12px;
-            border: 2px solid var(--mcol0);
-            box-shadow: 0 8px 16px var(--shadowcol);
-            overflow: hidden;
-            margin-bottom: 20px;
-            transition: all 0.3s;
-        }
-
-        .puzzle_block {
-            position: absolute;
-            background: linear-gradient(135deg, var(--whitecol), var(--darkcol));
-            color: var(--txtcol0);
-            font-weight: 800;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            border: 1px solid var(--darkcol);
-            box-shadow: 0 2px 4px var(--shadowcol);
-            border-radius: 6px;
-        }
-
-        .puzzle_block:hover {
-            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
-            color: var(--whitecol);
-            transform: scale(1.03);
-            z-index: 10;
-            box-shadow: 0 4px 8px var(--shadowcol);
-        }
-
-        /* --- Settings Panel --- */
-        #settings_panel {
+        /* --- Z-INDEX FIX: Confetti on Top --- */
+        #confetti-canvas {
             position: fixed;
-            top: 0;
-            right: -400px;
-            width: 350px;
-            height: 100%;
-            background-color: var(--whitecol);
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            z-index: 200;
-            transition: right 0.4s ease;
-            padding: 30px 25px;
-            overflow-y: auto;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 99999; /* Highest priority */
         }
 
-        #settings_panel.show {
-            right: 0;
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute; top: 20px; right: 20px;
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text-main); width: 45px; height: 45px;
+            border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; box-shadow: var(--shadow); z-index: 50;
         }
 
-        #settings_panel h2 {
-            color: var(--mcol0);
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.8em;
-        }
+        #app { width: 100%; max-width: 450px; padding: 20px; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
 
-        .settings-section {
-            margin-bottom: 30px;
-        }
+        .screen { display: none; width: 100%; animation: fadeUp 0.4s ease forwards; }
+        .screen.active { display: block; }
 
-        .settings-section h3 {
-            color: var(--txtcol0);
-            margin-bottom: 15px;
-            font-size: 1.3em;
-            border-bottom: 2px solid var(--darkcol);
-            padding-bottom: 8px;
-        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .settings-option {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 12px 15px;
-            background-color: var(--darkcol);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
+        /* Menu */
+        .title { text-align: center; font-size: 2.5rem; font-weight: 800; margin-bottom: 25px; background: linear-gradient(135deg, var(--primary), #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 30px; box-shadow: var(--shadow); }
+        .label { display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
+        .segment-box { display: flex; background: var(--surface-2); padding: 5px; border-radius: 14px; gap: 5px; margin-bottom: 25px; }
+        .segment-btn { flex: 1; padding: 12px; border: none; background: transparent; color: var(--text-sub); font-weight: 600; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-size: 0.95rem; }
+        .segment-btn.active { background: var(--surface); color: var(--text-main); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-start, .btn-action { width: 100%; padding: 18px; border: none; border-radius: 16px; background: var(--primary); color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer; box-shadow: 0 10px 20px -5px rgba(79, 70, 229, 0.4); transition: transform 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-start:active { transform: scale(0.98); }
+        .btn-ai { background: linear-gradient(135deg, #8b5cf6, #7c3aed); box-shadow: 0 10px 20px -5px rgba(139, 92, 246, 0.4); margin-bottom: 15px; }
 
-        .settings-option:hover {
-            background-color: var(--mcol0);
-            color: var(--whitecol);
-        }
+        /* Game Board */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .game-stats { text-align: center; }
+        .game-stats h2 { font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 2px; }
+        .game-stats p { font-size: 0.85rem; color: var(--text-sub); font-weight: 600; }
+        .icon-btn { width: 45px; height: 45px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); color: var(--text-sub); font-size: 1.1rem; cursor: pointer; }
+        .icon-btn:hover { color: var(--text-main); border-color: var(--text-sub); }
 
-        .settings-option.active {
-            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
-            color: var(--whitecol);
-        }
+        #puzzle_container { position: relative; width: 100%; height: 0; padding-bottom: 100%; background: var(--surface-2); border-radius: 20px; margin-bottom: 25px; overflow: hidden; border: 4px solid var(--surface-2); }
+        .puzzle_block { position: absolute; background: var(--surface); color: var(--text-main); font-weight: 800; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 14px; box-shadow: inset 0 0 0 2px var(--border), 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1); user-select: none; }
+        .puzzle_block:active { transform: scale(0.95); }
+        .puzzle_block.hint-target { border: 3px solid var(--accent); color: var(--accent); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); z-index: 10; }
 
-        .settings-option i {
-            margin-right: 10px;
-            font-size: 1.2em;
-        }
+        /* AI Popup */
+        #ai_direction_popup { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 10px 20px; border-radius: 50px; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 10px 25px rgba(139, 92, 246, 0.5); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 100; }
+        #ai_direction_popup.show { opacity: 1; visibility: visible; top: 90px; }
 
-        .settings-option span {
-            font-weight: 600;
-        }
+        .info-footer { display: flex; justify-content: center; margin-bottom: 10px; }
+        .hint-text { font-size: 0.9rem; color: var(--text-sub); font-weight: 600; }
+        .dev-footer { width: 100%; text-align: center; padding: 20px; font-size: 0.9rem; color: var(--text-sub); margin-top: auto; }
+        .dev-name { font-weight: 700; color: var(--text-main); }
+        .social-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 600; color: #1877F2; padding: 5px 15px; border-radius: 50px; background: rgba(24, 119, 242, 0.1); transition: 0.3s; margin-top: 5px; }
+        .social-link:hover { background: #1877F2; color: white; transform: translateY(-2px); }
 
-        #apply_settings {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--wincol), #219653);
-            color: var(--whitecol);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.1em;
-            transition: all 0.3s;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        #apply_settings:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px var(--shadowcol);
-        }
-
-        /* --- Status Message --- */
-        #status_message {
-            margin-top: 15px;
-            font-size: 1.5em;
-            font-weight: bold;
-            color: var(--wincol);
-            text-align: center;
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* --- Success Popup --- */
-        #success_popup {
+        /* --- CUSTOM MODAL OVERLAY (Replaces Native Dialog) --- */
+        .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
             display: flex;
-            justify-content: center;
             align-items: center;
-            z-index: 100;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
+            justify-content: center;
+            z-index: 5000; /* Lower than confetti (99999) */
+            opacity: 0; visibility: hidden;
+            transition: 0.3s ease;
         }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
 
-        #success_popup.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        #popup_content {
-            background-color: var(--whitecol);
-            padding: 30px;
-            border-radius: 15px;
+        .modal-content {
+            background: var(--surface);
+            padding: 40px;
+            border-radius: 24px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
-            width: 85%;
-            position: relative;
-            z-index: 101;
+            width: 90%; max-width: 350px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
             transform: scale(0.8);
-            transition: transform 0.4s;
+            transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        .modal-overlay.show .modal-content { transform: scale(1); }
 
-        #success_popup.show #popup_content {
-            transform: scale(1);
-        }
-
-        #popup_content h2 {
-            color: var(--wincol);
-            margin-bottom: 15px;
-            font-size: 2em;
-        }
-
-        #popup_content p {
-            margin-bottom: 20px;
-            color: var(--txtcol0);
-            font-size: 1.2em;
-        }
-
-        #popup_buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
-        .popup_button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px var(--shadowcol);
-        }
-
-        #play_again_btn {
-            background: linear-gradient(135deg, var(--mcol0), var(--mcol1));
-            color: var(--whitecol);
-        }
-
-        #play_again_btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px var(--shadowcol);
-        }
-
-        #close_popup_btn {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-            color: var(--whitecol);
-        }
-
-        #close_popup_btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px var(--shadowcol);
-        }
-
-        /* --- Confetti --- */
-        .confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 99;
-        }
-
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: var(--confetti-1);
-            opacity: 0;
-            animation: confetti-fall 5s linear forwards;
-        }
-
-        .confetti:nth-child(2n) {
-            background-color: var(--confetti-2);
-        }
-
-        .confetti:nth-child(3n) {
-            background-color: var(--confetti-3);
-        }
-
-        .confetti:nth-child(4n) {
-            background-color: var(--confetti-4);
-        }
-
-        .confetti:nth-child(5n) {
-            background-color: var(--confetti-5);
-        }
-
-        @keyframes confetti-fall {
-            0% {
-                transform: translateY(-100px) rotate(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        /* --- Instructions --- */
-        #instructions {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: var(--whitecol);
-            border-radius: 10px;
-            box-shadow: 0 4px 6px var(--shadowcol);
-            width: 100%;
-            max-width: 500px;
-            transition: all 0.3s;
-        }
-
-        #instructions h3 {
-            color: var(--mcol0);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #instructions p {
-            color: var(--txtcol1);
-            line-height: 1.5;
-        }
-
-        /* --- Timer --- */
-        #timer_container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-left: auto;
-            margin-right: 20px;
-            font-size: 1.1em;
-        }
-
-        #timer {
-            font-weight: bold;
-            color: var(--mcol0);
-        }
-
-        /* --- AI Assistant Styles --- */
-        #ai_assistant_container {
-            margin-top: 15px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #ai_hint_btn {
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            color: var(--whitecol);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            box-shadow: 0 4px 6px var(--shadowcol);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        #ai_hint_btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px var(--shadowcol);
-        }
-
-        #ai_hint_btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        #ai_hint_counter {
-            font-size: 0.9em;
-            color: var(--txtcol1);
-            text-align: center;
-            margin-top: 0;
-            min-height: 20px;
-            transition: all 0.3s;
-        }
-
-        /* Top Direction Display - Fixed Position */
-        #ai_direction_display {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
-            color: white;
-            padding: 15px 25px;
-            border-radius: 15px;
-            z-index: 300;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-            min-width: 250px;
-            max-width: 350px;
-            animation: direction-slide-down 0.4s ease-out;
-            border: 3px solid rgba(255, 255, 255, 0.2);
-        }
-
-        @keyframes direction-slide-down {
-            0% {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-30px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-
-        @keyframes direction-pulse {
-            0% {
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-                transform: translateX(-50%) scale(1);
-            }
-            50% {
-                box-shadow: 0 12px 30px rgba(155, 89, 182, 0.4);
-                transform: translateX(-50%) scale(1.02);
-            }
-            100% {
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-                transform: translateX(-50%) scale(1);
-            }
-        }
-
-        #ai_direction_display.show {
-            display: flex;
-            animation: direction-slide-down 0.4s ease-out, direction-pulse 2s infinite;
-        }
-
-        #direction_header {
-            font-size: 1.1em;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 5px;
-        }
-
-        #direction_content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            width: 100%;
-        }
-
-        .direction-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-        }
-
-        #direction_tile {
-            font-weight: 900;
-            font-size: 1.8em;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 8px 15px;
-            border-radius: 10px;
-            min-width: 60px;
-            text-align: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        #direction_arrow {
-            font-size: 2.2em;
-            color: white;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-        }
-
-        #direction_text {
-            font-size: 1.4em;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        #direction_close {
-            position: absolute;
-            top: 8px;
-            right: 10px;
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-            font-size: 1.2em;
-        }
-
-        #direction_close:hover {
-            opacity: 1;
-        }
-
-        /* AI Indicator Styling - Enhanced */
-        .ai-hint-indicator {
-            position: absolute;
-            top: -3px;
-            left: -3px;
-            width: calc(100% + 6px);
-            height: calc(100% + 6px);
-            border: 4px solid #9b59b6;
-            border-radius: 8px;
-            z-index: 5;
-            pointer-events: none;
-            animation: ai-pulse 1s infinite alternate;
-            box-shadow: 0 0 20px rgba(155, 89, 182, 0.7), inset 0 0 20px rgba(155, 89, 182, 0.3);
-        }
-
-        /* AI Glow Effect */
-        .ai-glow-effect {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 6px;
-            background: radial-gradient(circle at center, rgba(155, 89, 182, 0.2) 0%, transparent 70%);
-            z-index: 4;
-            pointer-events: none;
-            animation: ai-glow 1.5s infinite alternate;
-        }
-
-        @keyframes ai-pulse {
-            0% {
-                border-color: rgba(155, 89, 182, 0.7);
-                box-shadow: 0 0 15px rgba(155, 89, 182, 0.5), inset 0 0 15px rgba(155, 89, 182, 0.2);
-                transform: scale(1);
-            }
-            100% {
-                border-color: rgba(155, 89, 182, 1);
-                box-shadow: 0 0 25px rgba(155, 89, 182, 0.9), inset 0 0 25px rgba(155, 89, 182, 0.4);
-                transform: scale(1.02);
-            }
-        }
-
-        @keyframes ai-glow {
-            0% {
-                opacity: 0.5;
-            }
-            100% {
-                opacity: 0.8;
-            }
-        }
-
-        /* Empty Space Highlight */
-        .ai-empty-highlight {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(155, 89, 182, 0.15);
-            border-radius: 6px;
-            z-index: 2;
-            pointer-events: none;
-            animation: empty-pulse 1.5s infinite alternate;
-        }
-
-        @keyframes empty-pulse {
-            0% {
-                opacity: 0.3;
-            }
-            100% {
-                opacity: 0.6;
-            }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 600px) {
-            header h1 {
-                font-size: 2.2em;
-            }
-            
-            #game_status {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
-            }
-            
-            #popup_buttons {
-                flex-direction: column;
-            }
-            
-            #timer_container {
-                margin: 0;
-            }
-            
-            #settings_panel {
-                width: 85%;
-                right: -85%;
-            }
-            
-            #theme_toggle, #settings_toggle {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin: 10px;
-            }
-            
-            header {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            #ai_direction_display {
-                top: 15px;
-                min-width: 220px;
-                max-width: 300px;
-                padding: 12px 20px;
-            }
-            
-            #direction_tile {
-                font-size: 1.5em;
-                padding: 6px 12px;
-                min-width: 50px;
-            }
-            
-            #direction_arrow {
-                font-size: 1.8em;
-            }
-            
-            #direction_text {
-                font-size: 1.2em;
-            }
-        }
-
-        /* --- Animation for blocks --- */
-        @keyframes block-appear {
-            0% {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .puzzle_block {
-            animation: block-appear 0.3s ease-out;
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-puzzle-piece"></i> SLIDE PUZZLE</h1>
-            <p class="subtitle">Rearrange the tiles to solve the puzzle</p>
-            <button id="settings_toggle">
-                <i class="fas fa-cog"></i>
-            </button>
-            <button id="theme_toggle">
-                <i class="fas fa-moon"></i>
-            </button>
-            <div id="developer_info">
-                Developed by: <a href="https://www.facebook.com/jamiul2168" target="_blank" id="developer_link">Jamiul Hasan</a>
-            </div>
-        </header>
-        
-        <!-- AI Direction Display - Fixed at Top -->
-        <div id="ai_direction_display">
-            <button id="direction_close">
-                <i class="fas fa-times"></i>
-            </button>
-            <div id="direction_header">
-                <i class="fas fa-robot"></i> AI Direction
-            </div>
-            <div id="direction_content">
-                <div class="direction-row">
-                    <div id="direction_tile">?</div>
-                    <div id="direction_arrow">→</div>
-                    <div id="direction_text">RIGHT</div>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
+    <div id="ai_direction_popup">
+        <i class="fas fa-robot"></i> Move <span id="dir_arrow">RIGHT</span>
+    </div>
+
+    <div id="app">
+        <div id="menu-screen" class="screen active">
+            <h1 class="title">Slide Puzzle</h1>
+            <div class="card">
+                <span class="label">Grid Size</span>
+                <div class="segment-box">
+                    <button class="segment-btn active" onclick="setGridSize(3, this)">3x3</button>
+                    <button class="segment-btn" onclick="setGridSize(4, this)">4x4</button>
+                    <button class="segment-btn" onclick="setGridSize(5, this)">5x5</button>
                 </div>
+                <span class="label">Difficulty</span>
+                <div class="segment-box">
+                    <button class="segment-btn active" onclick="setDifficulty(1, this)">Easy</button>
+                    <button class="segment-btn" onclick="setDifficulty(2, this)">Medium</button>
+                    <button class="segment-btn" onclick="setDifficulty(3, this)">Hard</button>
+                </div>
+                <button class="btn-start" onclick="startGame()">Start Game</button>
             </div>
         </div>
-        
-        <div id="game_status">
-            <p>Moves: <span id="move_count">0</span></p>
-            <div id="timer_container">
-                <i class="fas fa-clock"></i>
-                <span id="timer">00:00</span>
+
+        <div id="game-screen" class="screen">
+            <div class="header">
+                <button class="icon-btn" onclick="toMenu()"><i class="fas fa-arrow-left"></i></button>
+                <div class="game-stats">
+                    <h2 id="timer">00:00</h2>
+                    <p>Moves: <span id="move_count">0</span></p>
+                </div>
+                <button class="icon-btn" onclick="game.resetLevel()"><i class="fas fa-redo"></i></button>
             </div>
-            <button id="reset_game_btn">
-                <i class="fas fa-random"></i> Shuffle
+
+            <div id="puzzle_container"></div>
+
+            <button id="ai_btn" class="btn-action btn-ai" onclick="aiAssistant.getHint()">
+                <i class="fas fa-robot"></i> AI Hint (<span id="hint_count">3</span>)
             </button>
-        </div>
-
-        <div id="puzzle_container"></div>
-        
-        <!-- AI Assistant Section -->
-        <div id="ai_assistant_container">
-            <button id="ai_hint_btn">
-                <i class="fas fa-robot"></i> Get Direction
-            </button>
-            <p id="ai_hint_counter"><span id="hint_count">3</span> hints remaining</p>
-        </div>
-        
-        <div id="status_message"></div>
-
-        <div id="instructions">
-            <h3><i class="fas fa-info-circle"></i> How to Play</h3>
-            <p>Click on tiles adjacent to the empty space to slide them. Arrange all tiles in numerical order from left to right, top to bottom to solve the puzzle. Click the <i class="fas fa-cog"></i> button to change grid size and difficulty. Use "Get Direction" button (max 3 per game) to see which tile to move and in which direction.</p>
+            
+            <div class="info-footer">
+                <span class="hint-text">Arrange the numbers in order.</span>
+            </div>
         </div>
     </div>
 
-    <div id="settings_panel">
-        <h2><i class="fas fa-cog"></i> Game Settings</h2>
-        
-        <div class="settings-section">
-            <h3>Grid Size</h3>
-            <div class="settings-option active" data-type="size" data-value="3">
-                <i class="fas fa-th"></i>
-                <span>3x3 Grid</span>
-            </div>
-            <div class="settings-option" data-type="size" data-value="4">
-                <i class="fas fa-th-large"></i>
-                <span>4x4 Grid</span>
-            </div>
-            <div class="settings-option" data-type="size" data-value="5">
-                <i class="fas fa-th-list"></i>
-                <span>5x5 Grid</span>
-            </div>
+    <footer class="dev-footer">
+        <p>Developed by <span class="dev-name">Jamiul Hasan</span></p>
+        <a href="https://www.facebook.com/jamiul2168" target="_blank" class="social-link">
+            <i class="fab fa-facebook"></i> jamiul2168
+        </a>
+    </footer>
+
+    <div id="result-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <div style="font-size:3.5rem; margin-bottom:15px; animation: bounce 1s infinite;">🏆</div>
+            <h2 style="font-size:2rem; margin-bottom:10px; color:var(--primary); font-weight:800;">Solved!</h2>
+            <p style="color:var(--text-sub); margin-bottom:5px; font-weight:600;">Moves: <span id="final_moves" style="color:var(--text-main);">0</span></p>
+            <p style="color:var(--text-sub); margin-bottom:25px; font-weight:600;">Time: <span id="final_time" style="color:var(--text-main);">00:00</span></p>
+            <button class="btn-start" onclick="closeModal()">Play Again</button>
         </div>
-        
-        <div class="settings-section">
-            <h3>Difficulty Level</h3>
-            <div class="settings-option active" data-type="difficulty" data-value="1">
-                <i class="fas fa-smile"></i>
-                <span>Easy (Less Shuffle)</span>
-            </div>
-            <div class="settings-option" data-type="difficulty" data-value="2">
-                <i class="fas fa-meh"></i>
-                <span>Medium (Moderate Shuffle)</span>
-            </div>
-            <div class="settings-option" data-type="difficulty" data-value="3">
-                <i class="fas fa-frown"></i>
-                <span>Hard (More Shuffle)</span>
-            </div>
-        </div>
-        
-        <button id="apply_settings">
-            <i class="fas fa-play-circle"></i> Start Game
-        </button>
     </div>
 
-    <div id="success_popup">
-        <div id="popup_content">
-            <h2><i class="fas fa-trophy"></i> Congratulations!</h2>
-            <p>You solved the puzzle in <span id="final_moves">0</span> moves!</p>
-            <p>Time: <span id="final_time">00:00</span></p>
-            <div id="popup_buttons">
-                <button id="play_again_btn" class="popup_button">
-                    <i class="fas fa-redo"></i> Play Again
-                </button>
-                <button id="close_popup_btn" class="popup_button">
-                    <i class="fas fa-times"></i> Close
-                </button>
-            </div>
-        </div>
-        <div class="confetti-container" id="confetti_container"></div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        // JAVASCRIPT LOGIC
-        
-        const GameDifficulty = [20, 50, 70]; // Shuffle iterations for 3x3 (Easy, Medium, Hard)
-        const DifficultyMultiplier = [1, 2, 4]; // Multiplier for 4x4/5x5 for better randomization
+        // --- CONFIG ---
+        let config = { size: 3, difficulty: 1 };
+        const DifficultyIterations = [15, 40, 80];
 
+        // --- THEME ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.getAttribute('data-theme') === 'light') {
+                html.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+            } else {
+                html.setAttribute('data-theme', 'light');
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        // --- MENU ---
+        function setGridSize(size, btn) {
+            config.size = size;
+            updateSegment(btn);
+        }
+        function setDifficulty(level, btn) {
+            config.difficulty = level;
+            updateSegment(btn);
+        }
+        function updateSegment(btn) {
+            [...btn.parentElement.children].forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        function startGame() {
+            document.getElementById('menu-screen').classList.remove('active');
+            document.getElementById('game-screen').classList.add('active');
+            game.init(config.size, config.difficulty);
+            aiAssistant.reset();
+        }
+        function toMenu() {
+            game.stopTimer();
+            document.getElementById('game-screen').classList.remove('active');
+            document.getElementById('menu-screen').classList.add('active');
+        }
+
+        // --- GAME ENGINE ---
         class Game {
-            difficulty;
-            gridSize; // New property: 3, 4, or 5
-            cols;
-            rows;
-            count;
-            blocksContainer; // Reference to the puzzle container
-            blocks; // Array of dynamically created block elements
-            emptyBlockCoords = [2, 2]; // Initial default, updated on init
-            indexes = [];
-            moves = 0;
-            timerInterval = null;
-            seconds = 0;
-            isPlaying = false;
-
-            constructor(gridSize = 3, difficultyLevel = 1) {
-                this.blocksContainer = document.getElementById("puzzle_container");
-                this.setGridSize(gridSize); // Set initial size, which calls init()
-                this.setDifficulty(difficultyLevel, false); // Initialize difficulty without re-randomizing
-                this.setupTimer();
-            }
-
-            setGridSize(size) {
-                this.gridSize = size;
-                this.cols = size;
-                this.rows = size;
-                this.count = this.cols * this.rows;
-                this.init(); // Re-initialize game on size change
-            }
-
-            init() {
-                this.createBlocks(); // Generate the blocks dynamically
-                // Re-fetch blocks after creation
-                this.blocks = Array.from(this.blocksContainer.getElementsByClassName("puzzle_block"));
-                this.indexes = [];
-                this.emptyBlockCoords = [this.cols - 1, this.rows - 1]; // Empty block is always the last tile
-
-                // Calculate and apply dynamic block size CSS
-                const blockSize = 100 / this.cols;
-                
-                for (let i = 0; i < this.blocks.length; i++) {
-                    let block = this.blocks[i];
-                    let blockIdx = i;
-
-                    // Apply size and position to blocks
-                    block.style.width = `${blockSize}%`;
-                    block.style.height = `${blockSize}%`;
-                    
-                    // Set font size
-                    block.style.fontSize = `${(150 / this.cols)}px`; 
-                    
-                    let x = i % this.cols;
-                    let y = Math.floor(i / this.cols);
-
-                    this.positionBlockAtCoord(blockIdx, x, y);
-                    
-                    // Re-bind click events
-                    block.removeEventListener('click', block.clickListener); 
-                    block.clickListener = this.onClickOnBlock.bind(this, blockIdx); 
-                    block.addEventListener('click', block.clickListener);
-
-                    this.indexes.push(blockIdx);
-                }
-
-                this.indexes.push(this.count - 1); 
-
-                this.resetMoves();
-                
-                // Use current difficulty setting for randomization
-                const currentDifficultyIndex = GameDifficulty.indexOf(this.difficulty);
-                const multiplier = DifficultyMultiplier[this.gridSize - 3];
-                this.randomize(GameDifficulty[currentDifficultyIndex] * multiplier);
-
-                for (let i = 0; i < this.blocks.length; i++) {
-                    this.blocks[i].style.pointerEvents = 'auto';
-                }
-                
-                // Start the timer
-                this.startTimer();
-            }
-            
-            // Function to create blocks dynamically
-            createBlocks() {
-                this.blocksContainer.innerHTML = ''; 
-                for (let i = 1; i < this.count; i++) {
-                    const block = document.createElement('div');
-                    block.classList.add('puzzle_block');
-                    block.textContent = i;
-                    this.blocksContainer.appendChild(block);
-                }
-            }
-
-            resetMoves() {
+            constructor() {
+                this.container = document.getElementById("puzzle_container");
+                this.blocks = [];
                 this.moves = 0;
-                document.getElementById('move_count').textContent = this.moves;
-                document.getElementById('status_message').textContent = "";
+                this.timerInterval = null;
+                this.seconds = 0;
             }
 
-            randomize(iterationCount) {
-                for (let i = 0; i < iterationCount; i++) {
-                    let randomBlockIdx = Math.floor(Math.random() * (this.count - 1));
-                    let moved = this.moveBlock(randomBlockIdx, false); 
-                    if (!moved) i--; 
-                }
-            }
-
-            moveBlock(blockIdx, countMove = true) {
-                let block = this.blocks[blockIdx];
-                let blockCoords = this.canMoveBlock(block);
-
-                if (blockCoords != null) {
-                    let blockPosInIndexes = blockCoords[0] + blockCoords[1] * this.cols;
-                    let oldEmptyIdx = this.emptyBlockCoords[0] + this.emptyBlockCoords[1] * this.cols;
-
-                    this.positionBlockAtCoord(blockIdx, this.emptyBlockCoords[0], this.emptyBlockCoords[1]);
-                    
-                    this.indexes[oldEmptyIdx] = this.indexes[blockPosInIndexes];
-                    this.indexes[blockPosInIndexes] = this.count - 1; 
-
-                    this.emptyBlockCoords[0] = blockCoords[0];
-                    this.emptyBlockCoords[1] = blockCoords[1];
-
-                    if (countMove) {
-                        this.moves++;
-                        document.getElementById('move_count').textContent = this.moves;
-                    }
-                    return true;
-                }
-                return false;
-            }
-
-            canMoveBlock(block) {
-                const blockLeft = parseFloat(block.style.left);
-                const blockTop = parseFloat(block.style.top);
-                const blockSizePercent = 100 / this.cols;
-
-                let blockCoords = [
-                    Math.round(blockLeft / blockSizePercent * 100 / 100),
-                    Math.round(blockTop / blockSizePercent * 100 / 100)
-                ];
-
-                let diff = [
-                    Math.abs(blockCoords[0] - this.emptyBlockCoords[0]),
-                    Math.abs(blockCoords[1] - this.emptyBlockCoords[1])
-                ];
-
-                let canMove = (diff[0] == 1 && diff[1] == 0) || (diff[0] == 0 && diff[1] == 1);
-
-                if (canMove) return blockCoords;
-                else return null;
-            }
-
-            positionBlockAtCoord(blockIdx, x, y) {
-                let block = this.blocks[blockIdx];
-                const blockSize = 100 / this.cols;
-                block.style.left = `${x * blockSize}%`;
-                block.style.top = `${y * blockSize}%`;
-            }
-
-            onClickOnBlock(blockIdx) {
-                if (!this.isPlaying) {
-                    this.startTimer();
-                }
+            init(size, difficulty) {
+                this.cols = size;
+                this.count = size * size;
+                this.empty = {x: size-1, y: size-1};
+                this.moves = 0;
+                this.seconds = 0;
+                this.difficulty = difficulty;
                 
-                if (this.moveBlock(blockIdx)) {
-                    // Hide AI hint if active
-                    if (aiAssistant) {
-                        aiAssistant.hideHint();
-                        aiAssistant.hideDirectionDisplay();
-                    }
+                this.createGrid();
+                this.randomize();
+                this.startTimer();
+                this.updateUI();
+            }
+
+            createGrid() {
+                this.container.innerHTML = '';
+                this.blocks = [];
+                const sizePct = 100 / this.cols;
+                const gap = 4;
+                
+                for(let i=0; i<this.count - 1; i++) {
+                    const block = document.createElement('div');
+                    block.className = 'puzzle_block';
+                    block.textContent = i + 1;
+                    block.style.width = `calc(${sizePct}% - ${gap}px)`;
+                    block.style.height = `calc(${sizePct}% - ${gap}px)`;
+                    block.style.fontSize = `${160/this.cols}px`;
                     
-                    if (this.checkPuzzleSolved()) {
-                        document.getElementById('final_moves').textContent = this.moves;
-                        document.getElementById('final_time').textContent = this.formatTime(this.seconds);
-                        document.getElementById('success_popup').classList.add('show');
-                        createConfetti();
-                        this.stopTimer();
-                        
-                        for (let i = 0; i < this.blocks.length; i++) {
-                            this.blocks[i].style.pointerEvents = 'none';
-                        }
-                    }
+                    const x = i % this.cols;
+                    const y = Math.floor(i / this.cols);
+                    this.setPosition(block, x, y);
+                    
+                    block.onclick = () => this.clickBlock(i);
+                    this.container.appendChild(block);
+                    this.blocks.push({el: block, x: x, y: y, idx: i});
                 }
             }
 
-            checkPuzzleSolved() {
-                for (let i = 0; i < this.indexes.length; i++) {
-                    if (this.indexes[i] != i) return false;
+            setPosition(el, x, y) {
+                const sizePct = 100 / this.cols;
+                const gap = 2;
+                el.style.left = `calc(${x * sizePct}% + ${gap}px)`;
+                el.style.top = `calc(${y * sizePct}% + ${gap}px)`;
+            }
+
+            clickBlock(originalIdx) {
+                const block = this.blocks.find(b => b.idx === originalIdx);
+                if(this.canMove(block)) {
+                    this.move(block);
+                    aiAssistant.clearHint();
+                    if(this.checkWin()) this.endGame();
+                }
+            }
+
+            canMove(block) {
+                const dx = Math.abs(block.x - this.empty.x);
+                const dy = Math.abs(block.y - this.empty.y);
+                return (dx === 1 && dy === 0) || (dx === 0 && dy === 1);
+            }
+
+            move(block) {
+                const tempX = block.x;
+                const tempY = block.y;
+                block.x = this.empty.x;
+                block.y = this.empty.y;
+                this.empty.x = tempX;
+                this.empty.y = tempY;
+                
+                this.setPosition(block.el, block.x, block.y);
+                this.moves++;
+                document.getElementById('move_count').textContent = this.moves;
+            }
+
+            randomize() {
+                const iterations = DifficultyIterations[this.difficulty - 1] * (this.cols - 1);
+                for(let i=0; i<iterations; i++) {
+                    const neighbors = this.blocks.filter(b => this.canMove(b));
+                    const randBlock = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    this.move(randBlock);
+                }
+                this.moves = 0;
+                document.getElementById('move_count').textContent = 0;
+            }
+
+            checkWin() {
+                for(let b of this.blocks) {
+                    const targetX = b.idx % this.cols;
+                    const targetY = Math.floor(b.idx / this.cols);
+                    if(b.x !== targetX || b.y !== targetY) return false;
                 }
                 return true;
             }
 
-            setDifficulty(difficultyLevel, shouldRandomize = true) {
-                this.difficulty = GameDifficulty[difficultyLevel - 1];
-
-                this.resetMoves();
-                this.resetTimer();
-
-                for (let i = 0; i < this.blocks.length; i++) {
-                    this.blocks[i].style.pointerEvents = 'auto';
-                }
-                if (shouldRandomize) {
-                    const multiplier = DifficultyMultiplier[this.gridSize - 3];
-                    this.randomize(this.difficulty * multiplier); 
-                }
-            }
-            
-            // Timer functions
-            setupTimer() {
-                this.seconds = 0;
-                this.isPlaying = false;
-                this.updateTimerDisplay();
-            }
-            
             startTimer() {
-                if (!this.isPlaying) {
-                    this.isPlaying = true;
-                    this.timerInterval = setInterval(() => {
-                        this.seconds++;
-                        this.updateTimerDisplay();
-                    }, 1000);
-                }
-            }
-            
-            stopTimer() {
-                this.isPlaying = false;
-                clearInterval(this.timerInterval);
-            }
-            
-            resetTimer() {
                 this.stopTimer();
+                this.timerInterval = setInterval(() => {
+                    this.seconds++;
+                    this.updateUI();
+                }, 1000);
+            }
+            stopTimer() { clearInterval(this.timerInterval); }
+            
+            updateUI() {
+                const m = Math.floor(this.seconds / 60).toString().padStart(2,'0');
+                const s = (this.seconds % 60).toString().padStart(2,'0');
+                document.getElementById('timer').textContent = `${m}:${s}`;
+            }
+
+            resetLevel() {
+                this.randomize();
                 this.seconds = 0;
-                this.updateTimerDisplay();
+                this.startTimer();
+                this.updateUI();
+                aiAssistant.reset();
             }
-            
-            updateTimerDisplay() {
-                document.getElementById('timer').textContent = this.formatTime(this.seconds);
-            }
-            
-            formatTime(totalSeconds) {
-                const minutes = Math.floor(totalSeconds / 60);
-                const seconds = totalSeconds % 60;
-                return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            endGame() {
+                this.stopTimer();
+                const m = Math.floor(this.seconds / 60).toString().padStart(2,'0');
+                const s = (this.seconds % 60).toString().padStart(2,'0');
+                document.getElementById('final_moves').innerText = this.moves;
+                document.getElementById('final_time').innerText = `${m}:${s}`;
+                
+                // Show Custom Modal
+                document.getElementById('result-overlay').classList.add('show');
+                
+                // Trigger Confetti ON TOP
+                triggerConfetti();
             }
         }
 
-        // AI Assistant Class - With Top Direction Display
+        // --- AI ---
         class AIAssistant {
-            constructor(gameInstance) {
-                this.game = gameInstance;
-                this.hintsRemaining = 3;
-                this.isActive = false;
-                this.hintBlock = null;
-                this.direction = null;
-                this.tileNumber = null;
-                this.setupAI();
-                this.updateHintCounter();
+            constructor() {
+                this.hints = 3;
+                this.btn = document.getElementById('ai_btn');
+                this.countSpan = document.getElementById('hint_count');
+                this.popup = document.getElementById('ai_direction_popup');
+                this.arrow = document.getElementById('dir_arrow');
             }
-            
-            setupAI() {
-                this.aiButton = document.getElementById('ai_hint_btn');
-                this.hintCounter = document.getElementById('hint_count');
-                this.directionDisplay = document.getElementById('ai_direction_display');
-                this.directionTile = document.getElementById('direction_tile');
-                this.directionArrow = document.getElementById('direction_arrow');
-                this.directionText = document.getElementById('direction_text');
-                
-                // AI Button Event
-                this.aiButton.addEventListener('click', () => this.getHint());
-                
-                // Close Direction Display
-                document.getElementById('direction_close').addEventListener('click', () => {
-                    this.hideDirectionDisplay();
-                });
-                
-                // Auto-hide direction after 5 seconds
-                this.directionDisplay.addEventListener('click', (e) => {
-                    if (e.target.id === 'direction_close' || e.target.closest('#direction_close')) {
-                        return;
-                    }
-                    // Hide after 5 seconds from click
-                    setTimeout(() => {
-                        this.hideDirectionDisplay();
-                    }, 5000);
-                });
-            }
-            
-            getHint() {
-                if (this.hintsRemaining <= 0) {
-                    this.aiButton.disabled = true;
-                    return;
-                }
-                
-                const bestMove = this.findBestMove();
-                if (!bestMove) {
-                    this.showTemporaryMessage("No valid moves found!", "error");
-                    return;
-                }
-                
-                // Use one hint
-                this.hintsRemaining--;
-                this.updateHintCounter();
-                
-                // Disable button if no hints left
-                if (this.hintsRemaining <= 0) {
-                    this.aiButton.disabled = true;
-                    this.aiButton.innerHTML = '<i class="fas fa-robot"></i> No Hints Left';
-                }
-                
-                // Save move info
-                this.tileNumber = bestMove.number;
-                this.direction = bestMove.direction;
-                
-                // Show the hint with direction
-                this.showDirectionalHint(bestMove);
-                
-                // Show direction display at top
-                this.showDirectionDisplay(bestMove);
-            }
-            
-            findBestMove() {
-                const movableBlocks = [];
-                
-                // Find all blocks that can move
-                for (let i = 0; i < this.game.blocks.length; i++) {
-                    const block = this.game.blocks[i];
-                    const blockLeft = parseFloat(block.style.left);
-                    const blockTop = parseFloat(block.style.top);
-                    const blockSizePercent = 100 / this.game.cols;
-                    
-                    let blockCoords = [
-                        Math.round(blockLeft / blockSizePercent * 100 / 100),
-                        Math.round(blockTop / blockSizePercent * 100 / 100)
-                    ];
-                    
-                    let diff = [
-                        Math.abs(blockCoords[0] - this.game.emptyBlockCoords[0]),
-                        Math.abs(blockCoords[1] - this.game.emptyBlockCoords[1])
-                    ];
-                    
-                    let canMove = (diff[0] == 1 && diff[1] == 0) || (diff[0] == 0 && diff[1] == 1);
-                    
-                    if (canMove) {
-                        // Determine direction
-                        let direction = "";
-                        if (blockCoords[0] < this.game.emptyBlockCoords[0]) direction = "RIGHT";
-                        else if (blockCoords[0] > this.game.emptyBlockCoords[0]) direction = "LEFT";
-                        else if (blockCoords[1] < this.game.emptyBlockCoords[1]) direction = "DOWN";
-                        else if (blockCoords[1] > this.game.emptyBlockCoords[1]) direction = "UP";
-                        
-                        movableBlocks.push({
-                            index: i,
-                            block: block,
-                            coords: blockCoords,
-                            number: parseInt(block.textContent),
-                            direction: direction
-                        });
-                    }
-                }
-                
-                if (movableBlocks.length === 0) return null;
-                
-                // Evaluate each possible move
-                const evaluatedMoves = movableBlocks.map(move => {
-                    return {
-                        ...move,
-                        score: this.evaluateMove(move)
-                    };
-                });
-                
-                // Sort by score (higher is better)
-                evaluatedMoves.sort((a, b) => b.score - a.score);
-                
-                return evaluatedMoves[0]; // Best move
-            }
-            
-            evaluateMove(move) {
-                let score = 0;
-                const targetX = (move.number - 1) % this.game.cols;
-                const targetY = Math.floor((move.number - 1) / this.game.cols);
-                
-                // Current distance from correct position
-                const currentDistance = Math.abs(move.coords[0] - targetX) + Math.abs(move.coords[1] - targetY);
-                
-                // Distance after moving to empty spot
-                const newDistance = Math.abs(this.game.emptyBlockCoords[0] - targetX) + 
-                                   Math.abs(this.game.emptyBlockCoords[1] - targetY);
-                
-                // Improvement score (negative means improvement)
-                const improvement = newDistance - currentDistance;
-                
-                // Higher score for improvement
-                score -= improvement * 10;
-                
-                // Bonus for moving tiles that are closer to their correct position
-                if (improvement < 0) {
-                    score += 5;
-                }
-                
-                // Bonus for moving lower numbers first (helps with ordering)
-                if (move.number <= this.game.cols) {
-                    score += 3;
-                }
-                
-                // Bonus for moving corner pieces
-                if ((move.coords[0] === 0 || move.coords[0] === this.game.cols - 1) &&
-                    (move.coords[1] === 0 || move.coords[1] === this.game.rows - 1)) {
-                    score += 2;
-                }
-                
-                return score;
-            }
-            
-            showDirectionalHint(bestMove) {
-                this.hideHint(); // Remove any existing hint
-                
-                // Save hint block
-                this.hintBlock = bestMove.block;
-                
-                // Add glowing border
-                const borderIndicator = document.createElement('div');
-                borderIndicator.className = 'ai-hint-indicator';
-                this.hintBlock.appendChild(borderIndicator);
-                
-                // Add inner glow effect
-                const glowEffect = document.createElement('div');
-                glowEffect.className = 'ai-glow-effect';
-                this.hintBlock.appendChild(glowEffect);
-                
-                // Highlight empty space
-                this.highlightEmptySpace();
-                
-                // Make the tile number more visible
-                this.hintBlock.style.zIndex = '20';
-                this.hintBlock.style.fontWeight = '900';
-                this.hintBlock.style.color = '#9b59b6';
-                this.hintBlock.style.textShadow = '0 0 10px rgba(255, 255, 255, 0.8)';
-            }
-            
-            highlightEmptySpace() {
-                // Remove existing empty highlight
-                const existingHighlight = document.getElementById('ai-empty-highlight-temp');
-                if (existingHighlight) existingHighlight.remove();
-                
-                // Create a highlight at the empty position
-                const emptyX = this.game.emptyBlockCoords[0];
-                const emptyY = this.game.emptyBlockCoords[1];
-                const blockSize = 100 / this.game.cols;
-                const puzzleContainer = document.getElementById('puzzle_container');
-                
-                const emptyHighlight = document.createElement('div');
-                emptyHighlight.style.position = 'absolute';
-                emptyHighlight.style.width = `${blockSize}%`;
-                emptyHighlight.style.height = `${blockSize}%`;
-                emptyHighlight.style.left = `${emptyX * blockSize}%`;
-                emptyHighlight.style.top = `${emptyY * blockSize}%`;
-                emptyHighlight.className = 'ai-empty-highlight';
-                emptyHighlight.id = 'ai-empty-highlight-temp';
-                
-                puzzleContainer.appendChild(emptyHighlight);
-            }
-            
-            showDirectionDisplay(bestMove) {
-                // Update display content
-                this.directionTile.textContent = bestMove.number;
-                this.directionText.textContent = bestMove.direction;
-                
-                // Set arrow based on direction
-                let arrowIcon = '→';
-                switch(bestMove.direction) {
-                    case "UP":
-                        arrowIcon = '<i class="fas fa-arrow-up"></i>';
-                        break;
-                    case "DOWN":
-                        arrowIcon = '<i class="fas fa-arrow-down"></i>';
-                        break;
-                    case "LEFT":
-                        arrowIcon = '<i class="fas fa-arrow-left"></i>';
-                        break;
-                    case "RIGHT":
-                        arrowIcon = '<i class="fas fa-arrow-right"></i>';
-                        break;
-                }
-                this.directionArrow.innerHTML = arrowIcon;
-                
-                // Show the display
-                this.directionDisplay.classList.add('show');
-                
-                // Auto-hide after 8 seconds
-                setTimeout(() => {
-                    this.hideDirectionDisplay();
-                }, 8000);
-            }
-            
-            hideDirectionDisplay() {
-                this.directionDisplay.classList.remove('show');
-            }
-            
-            showTemporaryMessage(text, type = "info") {
-                const statusElement = document.getElementById('status_message');
-                statusElement.textContent = text;
-                
-                if (type === "error") {
-                    statusElement.style.color = "#e74c3c";
-                } else {
-                    statusElement.style.color = "#9b59b6";
-                }
-                
-                // Auto-clear message after 3 seconds
-                setTimeout(() => {
-                    if (statusElement.textContent === text) {
-                        statusElement.textContent = "";
-                    }
-                }, 3000);
-            }
-            
-            hideHint() {
-                if (this.hintBlock) {
-                    // Remove all AI indicators
-                    const indicators = this.hintBlock.querySelectorAll('.ai-hint-indicator, .ai-glow-effect');
-                    indicators.forEach(indicator => {
-                        indicator.remove();
-                    });
-                    
-                    // Reset tile styling
-                    this.hintBlock.style.zIndex = '';
-                    this.hintBlock.style.fontWeight = '';
-                    this.hintBlock.style.color = '';
-                    this.hintBlock.style.textShadow = '';
-                    
-                    this.hintBlock = null;
-                }
-                
-                // Remove empty space highlight
-                const emptyHighlight = document.getElementById('ai-empty-highlight-temp');
-                if (emptyHighlight) emptyHighlight.remove();
-                
-                this.direction = null;
-                this.tileNumber = null;
-            }
-            
-            updateHintCounter() {
-                this.hintCounter.textContent = this.hintsRemaining;
-                
-                if (this.hintsRemaining === 0) {
-                    document.getElementById('ai_hint_counter').textContent = 'No hints remaining';
-                } else {
-                    document.getElementById('ai_hint_counter').innerHTML = `<span id="hint_count">${this.hintsRemaining}</span> hints remaining`;
-                }
-            }
-            
             reset() {
-                this.hintsRemaining = 3;
-                this.isActive = false;
-                this.hideHint();
-                this.hideDirectionDisplay();
-                this.aiButton.disabled = false;
-                this.aiButton.innerHTML = '<i class="fas fa-robot"></i> Get Direction';
-                this.updateHintCounter();
+                this.hints = 3;
+                this.updateBtn();
+                this.clearHint();
             }
-        }
-
-        // Confetti function
-        function createConfetti() {
-            const confettiContainer = document.getElementById('confetti_container');
-            confettiContainer.innerHTML = '';
-            
-            for (let i = 0; i < 150; i++) {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti');
-                
-                // Random position and animation delay
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.animationDelay = Math.random() * 5 + 's';
-                
-                // Random size
-                const size = Math.random() * 10 + 5;
-                confetti.style.width = size + 'px';
-                confetti.style.height = size + 'px';
-                
-                // Random shape
-                if (Math.random() > 0.5) {
-                    confetti.style.borderRadius = '50%';
+            updateBtn() {
+                this.countSpan.innerText = this.hints;
+                this.btn.style.opacity = this.hints <= 0 ? 0.5 : 1;
+                this.btn.style.pointerEvents = this.hints <= 0 ? 'none' : 'auto';
+            }
+            clearHint() {
+                document.querySelectorAll('.hint-target').forEach(el => el.classList.remove('hint-target'));
+                this.popup.classList.remove('show');
+            }
+            getHint() {
+                if(this.hints <= 0) return;
+                const bestMove = this.findMove();
+                if(bestMove) {
+                    this.hints--;
+                    this.updateBtn();
+                    this.clearHint();
+                    bestMove.el.classList.add('hint-target');
+                    
+                    let dirText = "";
+                    if (bestMove.x < game.empty.x) dirText = "RIGHT <i class='fas fa-arrow-right'></i>";
+                    else if (bestMove.x > game.empty.x) dirText = "LEFT <i class='fas fa-arrow-left'></i>";
+                    else if (bestMove.y < game.empty.y) dirText = "DOWN <i class='fas fa-arrow-down'></i>";
+                    else if (bestMove.y > game.empty.y) dirText = "UP <i class='fas fa-arrow-up'></i>";
+                    
+                    this.arrow.innerHTML = dirText;
+                    this.popup.classList.add('show');
+                    setTimeout(() => this.popup.classList.remove('show'), 3000);
                 }
-                
-                confettiContainer.appendChild(confetti);
             }
-        }
+            findMove() {
+                const candidates = game.blocks.filter(b => game.canMove(b));
+                if(candidates.length === 0) return null;
+                let bestBlock = null, minDistance = Infinity;
 
-        // Theme toggle function
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const themeIcon = document.querySelector('#theme_toggle i');
-            
-            if (document.body.classList.contains('dark-mode')) {
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                themeIcon.classList.remove('fa-sun');
-                themeIcon.classList.add('fa-moon');
-                localStorage.setItem('theme', 'light');
-            }
-        }
+                candidates.forEach(block => {
+                    const origX = block.x, origY = block.y;
+                    const emptyX = game.empty.x, emptyY = game.empty.y;
+                    block.x = emptyX; block.y = emptyY; 
+                    
+                    let totalDist = 0;
+                    game.blocks.forEach(b => {
+                        const targetX = b.idx % game.cols;
+                        const targetY = Math.floor(b.idx / game.cols);
+                        totalDist += Math.abs(b.x - targetX) + Math.abs(b.y - targetY);
+                    });
 
-        // Settings panel functions
-        function toggleSettings() {
-            document.getElementById('settings_panel').classList.toggle('show');
-        }
-
-        function applySettings() {
-            const selectedSize = document.querySelector('.settings-option.active[data-type="size"]').getAttribute('data-value');
-            const selectedDifficulty = document.querySelector('.settings-option.active[data-type="difficulty"]').getAttribute('data-value');
-            
-            // Apply the new settings to the game
-            game.setGridSize(parseInt(selectedSize));
-            game.setDifficulty(parseInt(selectedDifficulty));
-            
-            // Reset AI assistant
-            if (aiAssistant) {
-                aiAssistant.reset();
-            }
-            
-            // Close the settings panel
-            toggleSettings();
-        }
-
-        // Settings option selection
-        document.querySelectorAll('.settings-option').forEach(option => {
-            option.addEventListener('click', function() {
-                const type = this.getAttribute('data-type');
-                document.querySelectorAll(`.settings-option[data-type="${type}"]`).forEach(opt => {
-                    opt.classList.remove('active');
+                    if(totalDist < minDistance) { minDistance = totalDist; bestBlock = block; }
+                    block.x = origX; block.y = origY; 
                 });
-                this.classList.add('active');
-            });
-        });
-
-        // Check for saved theme preference
-        function checkThemePreference() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                const themeIcon = document.querySelector('#theme_toggle i');
-                themeIcon.classList.remove('fa-moon');
-                themeIcon.classList.add('fa-sun');
+                return bestBlock || candidates[0];
             }
         }
 
-        // --- Global Game Setup ---
-        var game = new Game(3, 1); 
+        // --- FIREWORKS CONFETTI (High Z-Index) ---
+        function triggerConfetti() {
+            var duration = 3000;
+            var end = Date.now() + duration;
 
-        // --- AI Assistant Setup ---
-        var aiAssistant = new AIAssistant(game);
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    zIndex: 99999
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    zIndex: 99999
+                });
 
-        // --- Event Listeners ---
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+        }
 
-        // Handling the Shuffle/Reset Button
-        document.getElementById('reset_game_btn').addEventListener('click', () => {
-            const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
-            // Get the difficulty level (1, 2, or 3) from the current index
-            const currentLevel = currentDifficultyIndex + 1; 
-            game.setDifficulty(currentLevel);
-            
-            // Reset AI assistant
-            if (aiAssistant) {
-                aiAssistant.reset();
-            }
-        });
+        const game = new Game();
+        const aiAssistant = new AIAssistant();
 
-        // Success Popup Buttons
-        document.getElementById('play_again_btn').addEventListener('click', () => {
-            document.getElementById('success_popup').classList.remove('show');
-            const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
-            const currentLevel = currentDifficultyIndex + 1; 
-            game.setDifficulty(currentLevel);
-            
-            // Reset AI assistant
-            if (aiAssistant) {
-                aiAssistant.reset();
-            }
-        });
-
-        document.getElementById('close_popup_btn').addEventListener('click', () => {
-            document.getElementById('success_popup').classList.remove('show');
-            // Start a new game when popup is closed
-            const currentDifficultyIndex = GameDifficulty.indexOf(game.difficulty);
-            const currentLevel = currentDifficultyIndex + 1; 
-            game.setDifficulty(currentLevel);
-            
-            // Reset AI assistant
-            if (aiAssistant) {
-                aiAssistant.reset();
-            }
-        });
-
-        // Theme toggle
-        document.getElementById('theme_toggle').addEventListener('click', toggleTheme);
-
-        // Settings toggle
-        document.getElementById('settings_toggle').addEventListener('click', toggleSettings);
-
-        // Apply settings
-        document.getElementById('apply_settings').addEventListener('click', applySettings);
-
-        // Check theme preference on load
-        checkThemePreference();
-
-        // Initial setup to display the puzzle
-        document.getElementById('reset_game_btn').click();
+        function closeModal() {
+            document.getElementById('result-overlay').classList.remove('show');
+            game.resetLevel();
+        }
     </script>
 </body>
 </html>
